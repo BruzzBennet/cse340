@@ -227,3 +227,19 @@ VALUES   (
     'White',
     5
   );
+
+
+update inventory
+set inv_description = replace(inv_description,'small interiors','a huge interior')
+where inv_id=10;
+
+select 
+	inv_make,
+	inv_model
+from inventory i
+inner join classification c
+on c.classification_id=i.classification_id
+where classification_name='Sport';
+
+update inventory
+set inv_thumbnail = replace(inv_thumbnail,'/images','/images/vehicles');
