@@ -22,4 +22,8 @@
     .own-today{
         left:5%;
     }
+
+    .twogrid, #inv-display{
+        grid-template-columns:1fr;
+    }
 }

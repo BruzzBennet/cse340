@@ -6,6 +6,7 @@
  * Require Statements
  *************************/
 const baseController = require("./controllers/baseController")
+const inventoryController = require("./controllers/invController")
 const inventoryRoute = require("./routes/inventoryRoute")
 const express = require("express")
 const utilities = require("./utilities")
@@ -31,11 +32,15 @@ app.use(static)
 /* ***********************
  * Index route
  *************************/
-app.get("/",utilities.handleErrors(baseController.buildHome))
+app.get("/", utilities.handleErrors(baseController.buildHome))
 
 
 // Inventory routes
 app.use("/inv", inventoryRoute)
+app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
+app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
+app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
+app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
 
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
