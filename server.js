@@ -5,15 +5,44 @@
 /* ***********************
  * Require Statements
  *************************/
+const session = require("express-session")
+const pool = require('./database/')
 const baseController = require("./controllers/baseController")
 const inventoryController = require("./controllers/invController")
 const inventoryRoute = require("./routes/inventoryRoute")
+// const accountRoute = require("./routes/accountRoute")
 const express = require("express")
 const utilities = require("./utilities")
 const expressLayouts = require("express-ejs-layouts")
 const env = require("dotenv").config()
 const app = express()
 const static = require("./routes/static")
+const bodyParser = require("body-parser")
+
+
+// Express Messages Middleware
+app.use(require('connect-flash')())
+app.use(function(req, res, next){
+  res.locals.messages = require('express-messages')(req, res)
+  next()
+})
+
+/* ***********************
+ * Middleware
+ * ************************/
+app.use(session({
+  store: new (require('connect-pg-simple')(session))({
+    createTableIfMissing: true,
+    pool,
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: true,
+  saveUninitialized: true,
+  name: 'sessionId',
+}))
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 /* ***********************
  * View Engine and Templates
@@ -37,10 +66,13 @@ app.get("/", utilities.handleErrors(baseController.buildHome))
 
 // Inventory routes
 app.use("/inv", inventoryRoute)
-app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
-app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
-app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
-app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
+// app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
+// app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
+// app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
+// app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
+
+//Account Route
+app.use("/account", require("./routes/accountRoute"))
 
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
