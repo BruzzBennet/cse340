@@ -66,10 +66,10 @@ app.get("/", utilities.handleErrors(baseController.buildHome))
 
 // Inventory routes
 app.use("/inv", inventoryRoute)
-// app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
-// app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
-// app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
-// app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
+app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
+app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
+app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
+app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
 
 //Account Route
 app.use("/account", require("./routes/accountRoute"))
