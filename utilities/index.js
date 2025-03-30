@@ -1,5 +1,6 @@
 const invModel = require("../models/inventory-model")
 const Util = {}
+const { body, validationResult } = require("express-validator")
 
 /* ************************
  * Constructs the nav HTML unordered list
@@ -104,4 +105,138 @@ Util.buildDetailsGrid = async function(data){
       details += '<p class="notice">Sorry, no matching vehicles could be found.</p>'
     }
     return details
+}
+
+Util.buildClassificationList = async function (classification_id = null) {
+  let data = await invModel.getClassifications()
+  let classificationList =
+    '<select name="classification_id" id="classificationList" required>'
+  classificationList += "<option value=''>Choose a Classification</option>"
+  data.rows.forEach((row) => {
+    classificationList += '<option value="' + row.classification_id + '"'
+    if (
+      classification_id != null &&
+      row.classification_id == classification_id
+    ) {
+      classificationList += " selected "
+    }
+    classificationList += ">" + row.classification_name + "</option>"
+  })
+  classificationList += "</select>"
+  return classificationList
+}
+
+Util.checkInvData = async (req, res, next) => {
+  const { 
+    classification_id, 
+    inv_make, 
+    inv_model, 
+    inv_color, 
+    inv_description, 
+    inv_image, 
+    inv_thumbnail, 
+    inv_year, 
+    inv_price, 
+    inv_miles} = req.body
+  let errors = []
+  const classification_id_1 = req.params.classificationId
+      const data1 = await invModel.getInventoryByInvId(classification_id_1)
+      console.log(classification_id_1, data1)
+      const details = await Util.buildClassificationList(data1)
+  errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    let nav = await Util.getNav()
+    res.render("inventory/add-inventory", {
+      errors,
+      title: "Add Inventory",
+      nav,
+      details,
+      classification_id, 
+      inv_make, 
+      inv_model, 
+      inv_color, 
+      inv_description, 
+      inv_image, 
+      inv_thumbnail, 
+      inv_year, 
+      inv_price, 
+      inv_miles,
+      details
+    })
+    return
+  }
+  next()
+}
+
+Util.invRegistationRules = () => {
+  return [
+
+    body("classification_id")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please enter a valid class name."),
+
+    body("inv_make")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isLength({ min: 1})
+      .withMessage("Please enter a valid make name."),
+
+    body("inv_model")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isLength({ min: 1 })
+      .withMessage("Please enter a valid model name."),
+
+    body("inv_color")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isAlpha()
+      .withMessage("Please enter a valid color name."),
+
+      body("inv_description")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isLength({ min: 1 })
+      .withMessage("Please enter a valid description name."),
+
+      body("inv_image")
+      .trim()
+      .escape()
+      .isLength({ min: 2 })
+      .withMessage("Please enter a valid image route."),
+
+      body("inv_thumbnail")
+      .trim()
+      .escape()
+      .isLength({ min: 2 })
+      .withMessage("Please enter a valid thumbnail route."),
+
+      body("inv_year")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please enter a valid year."),
+
+      body("inv_price")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please enter a valid price."),
+
+      body("inv_miles")
+      .trim()
+      .escape()
+      .notEmpty()
+      .isNumeric()
+      .withMessage("Please enter valid miles.")
+  ]
 }

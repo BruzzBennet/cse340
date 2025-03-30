@@ -205,3 +205,51 @@ body {
 /* *{
   border: solid 1px black;
 } */
+
+input:valid{
+  border:solid 1px rgb(21, 185, 21);
+  background-color: rgb(179, 255, 179);
+}
+
+input, select{
+  width: 100%;
+  padding: 10px;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+}
+
+input[type=textarea]{
+  height:100px;
+}
+
+input:invalid{
+  border:solid 1px red;
+  background-color:rgb(251, 198, 186);
+}
+
+input[type=submit]{
+  background-color: #292929;
+  color:white;
+  padding:1rem;
+  border: none;
+  width: 100%;
+  border-radius: 1rem;
+  justify-self: center;
+}
+
+label{
+  text-align: center;
+}
+
+form{
+  width: 325px;
+  margin: 1rem;
+  border: solid 1px #292929;
+  border-radius: 1rem;
+  padding:1rem;
+  text-align: center;
+}
+
+ul li{
+  text-align: left;
+}

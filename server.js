@@ -70,6 +70,9 @@ app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
 app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
 app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
 app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
+app.get("/inv/manage", utilities.handleErrors(inventoryController.buildManage))
+app.get("/inv/class", utilities.handleErrors(inventoryController.buildAddClass))
+app.get("/inv/inv", utilities.handleErrors(inventoryController.buildAddInv))
 
 //Account Route
 app.use("/account", require("./routes/accountRoute"))
