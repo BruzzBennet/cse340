@@ -18,7 +18,7 @@ const env = require("dotenv").config()
 const app = express()
 const static = require("./routes/static")
 const bodyParser = require("body-parser")
-
+const cookieParser = require("cookie-parser")
 
 // Express Messages Middleware
 app.use(require('connect-flash')())
@@ -43,6 +43,8 @@ app.use(session({
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(cookieParser())
+app.use(utilities.checkJWTToken)
 
 /* ***********************
  * View Engine and Templates
@@ -50,7 +52,6 @@ app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-
 app.set("view engine", "ejs")
 app.use(expressLayouts)
 app.set("layout", "./layouts/layout") // not at views root
-
 
 
 /* ***********************
