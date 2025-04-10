@@ -178,22 +178,17 @@ invCont.getInventoryJSON = async (req, res, next) => {
  *  Build edit inventory view
  * ************************** */
 invCont.editInventoryView = async function (req, res, next) {
-    // const classification_id = req.params.classificationId
-    // const itemData = await invModel.getInventoryByInvId(classification_id)
-    // const details = await utilities.buildClassificationList(itemData)
-  // const inv_id = req.params.inv_id
   console.log("editInventoryView hit", req.params);
-  const inv_id = parseInt(req.params.inv_id)
-  console.log(inv_id)
-  const itemData = await invModel.getInventoryByInvId(inv_id)
-  console.log(itemData)
-  const details = await utilities.buildClassificationList(inv_id)
+  const inv_id = parseInt(req.params.inv_id) 
+  const itemDataArray = await invModel.getInventoryByInvId(inv_id)  
+  const itemData = itemDataArray[0]; // Get first item
+  const classificationSelect = await utilities.buildClassificationList(itemData.classification_id)
   const itemName = `${itemData.inv_make} ${itemData.inv_model}`
   let nav = await utilities.getNav()
   res.render("./inventory/edit-inventory", {
     title: "Edit " + itemName,
     nav,
-    details,
+    details:classificationSelect,
     errors: null,
     inv_id: itemData.inv_id,
     inv_make: itemData.inv_make,
@@ -267,6 +262,32 @@ invCont.updateInventory = async function (req, res, next) {
    classification_id
    })
  }
+}
+
+const jwt = require('jsonwebtoken');
+
+invCont.checkUserType=async function(req, res, next) {
+  const token = req.cookies.jwt
+  if (!token) {
+    return res.redirect("/account/login");
+    // return next()
+  }
+  try {
+    const verify = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    //The triple equal operator is used to compare two values to see if they are equal AND of the same type
+    //it’s generally recommended to use the triple equal operator whenever possible, as it’s more reliable and less prone to errors
+    if(verify.account_type!=="Admin" && verify.account_type!=="Employee"){
+      return res.redirect("/account/login");
+      // return next()
+    }
+    else{
+        return next()
+    }
+  } catch (err) {
+    console.log(err) 
+    return res.redirect("/account/login");   
+    
+  }
 }
 
 module.exports = invCont

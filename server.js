@@ -19,6 +19,7 @@ const app = express()
 const static = require("./routes/static")
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
+const accountRoute = require("./routes/accountRoute")
 
 // Express Messages Middleware
 app.use(require('connect-flash')())
@@ -46,6 +47,39 @@ app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-
 app.use(cookieParser())
 app.use(utilities.checkJWTToken)
 
+const jwt = require("jsonwebtoken")
+
+function checkLogin(req, res, next) {
+  // checks the jwt cookie made in the CheckLogin function in accountControler
+  const token = req.cookies.jwt
+
+  //Check if there's no token
+  if (!token) {
+    //If there isn't, the user is not logged in.
+    //The next line tells the views that the account is null, therefore, not showing the incorrect header
+    res.locals.account = null
+    //This part uses "return next()" instead of just "next()" because there's still code at the bottom of the function
+    //This helps the code get out of the function and THEN do what's next in the middleware or route
+    return next()
+  }
+
+  //verify if the user is logged in
+  try {
+    //This verifies and decodes the value of the cookie, and helps display it
+    const verify = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    //this code displays it in the view
+    res.locals.account = verify
+    //if it's not logged in, tell that to the view so it doesn't display the wrong code and crash
+  } catch (err) {
+    res.locals.account = null
+  }
+
+  //"next()" says "go to the next middleware or route"
+  next()
+}
+
+app.use(checkLogin)
+
 /* ***********************
  * View Engine and Templates
  *************************/
@@ -67,16 +101,16 @@ app.get("/", utilities.handleErrors(baseController.buildHome))
 
 // Inventory routes
 app.use("/inv", inventoryRoute)
-app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
-app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
-app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
-app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
-app.get("/inv/manage", utilities.handleErrors(inventoryController.buildManage))
-app.get("/inv/class", utilities.handleErrors(inventoryController.buildAddClass))
-app.get("/inv/inv", utilities.handleErrors(inventoryController.buildAddInv))
+// app.get("/inv", utilities.handleErrors(inventoryController.buildByInvId))
+// app.get("/inv", utilities.handleErrors(inventoryController.buildByClassificationId))
+// app.get("/inv/detail", utilities.handleErrors(inventoryController.buildByInvId))
+// app.get("/inv/type", utilities.handleErrors(inventoryController.buildByClassificationId))
+// app.get("/inv/manage", utilities.handleErrors(inventoryController.buildManage))
+// app.get("/inv/class", utilities.handleErrors(inventoryController.buildAddClass))
+// app.get("/inv/inv", utilities.handleErrors(inventoryController.buildAddInv))
 
 //Account Route
-app.use("/account", require("./routes/accountRoute"))
+app.use("/account", accountRoute)
 
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {

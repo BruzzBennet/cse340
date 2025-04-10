@@ -153,5 +153,4 @@ invCont.registerInv = async function (req, res) {
   }
 }
 
-
 module.exports = invCont
